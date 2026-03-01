@@ -5,9 +5,10 @@ from rich.console import Console
 from rich.table import Table
 
 from src.ferreteria.exceptions import AppError
+from src.ferreteria.models import Producto
 from src.ferreteria.services import InventarioService
 from src.ferreteria.storage import JSONStorage
-from src.ferreteria.models import Producto
+
 
 app = typer.Typer()
 console = Console()
