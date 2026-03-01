@@ -8,6 +8,7 @@ from .exceptions import (
 from .models import Producto
 from .storage import Storage
 
+
 class InventarioService:
     """Servicio principal que gestiona la lógica de negocio del inventario."""
 
