@@ -1,5 +1,6 @@
-import pytest
 from unittest.mock import MagicMock
+
+import pytest
 
 from src.ferreteria.exceptions import (
     DatosProductoInvalidosError,
@@ -8,7 +9,6 @@ from src.ferreteria.exceptions import (
 )
 from src.ferreteria.models import Producto
 from src.ferreteria.services import InventarioService
-
 
 #  Helpers
 
