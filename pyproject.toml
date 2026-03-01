@@ -1,12 +1,22 @@
 [project]
-name = "app-usuarios"
+name = "ferreteria-inventario"
 version = "0.1.0"
-description = "Add your description here"
+description = "Sistema de inventario y ventas para ferretería"
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.12"
 dependencies = [
     "pytest>=9.0.2",
-    "rich>=14.3.2",
-    "ruff>=0.15.1",
-    "typer>=0.23.2",
+    "rich>=14.0.0",
+    "ruff>=0.5.0",
+    "typer>=0.12.0",
 ]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
