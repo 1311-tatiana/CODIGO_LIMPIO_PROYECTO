@@ -8,7 +8,6 @@ from .exceptions import (
 from .models import Producto
 from .storage import Storage
 
-
 class InventarioService:
     """Servicio principal que gestiona la lógica de negocio del inventario."""
 
@@ -39,7 +38,11 @@ class InventarioService:
             if producto.codigo == codigo:
                 return producto
         raise ProductoNoEncontradoError(codigo)
-
+    
+    def calcular_inventario_total(self) -> float:
+        productos = self.storage.load()
+        return sum(p.cantidad * p.valor for p in productos)
+    
     # ACTUALIZAR
 
     def actualizar_producto(
@@ -83,6 +86,7 @@ class InventarioService:
             raise ProductoNoEncontradoError(codigo)
 
         self.storage.save(productos)
+        
 
     #ELIMINAR
 
