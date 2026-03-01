@@ -9,7 +9,6 @@ from src.ferreteria.models import Producto
 from src.ferreteria.services import InventarioService
 from src.ferreteria.storage import JSONStorage
 
-
 app = typer.Typer()
 console = Console()
 
