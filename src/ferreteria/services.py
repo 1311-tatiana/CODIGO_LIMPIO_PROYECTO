@@ -46,47 +46,27 @@ class InventarioService:
     
     # ACTUALIZAR
 
-    def actualizar_producto(
-        self,
-        codigo: str,
-        nuevo_nombre: str = None,
-        nueva_cantidad: int = None,
-        nuevo_valor: float = None,
-    ) -> None:
+def actualizar_producto(
+    self,
+    codigo: str,
+    nuevo_nombre: str | None = None,
+    nueva_cantidad: int | None = None,
+    nuevo_valor: float | None = None,
+) -> None:
 
-        productos = self.storage.load()
-        encontrado = False
+    productos = self.storage.load()
+    producto = self._buscar_producto(productos, codigo)
 
-        for producto in productos:
-            if producto.codigo == codigo:
-                if nuevo_nombre is not None:
-                    if not nuevo_nombre.strip():
-                        raise DatosProductoInvalidosError(
-                            "El nombre del producto no puede estar vacío"
-                        )
-                    producto.nombre = nuevo_nombre.strip()
+    if nuevo_nombre is not None:
+        producto.nombre = self._validar_nombre(nuevo_nombre)
 
-                if nueva_cantidad is not None:
-                    if nueva_cantidad < 0:
-                        raise DatosProductoInvalidosError(
-                            "La cantidad no puede ser negativa"
-                        )
-                    producto.cantidad = nueva_cantidad
+    if nueva_cantidad is not None:
+        producto.cantidad = self._validar_cantidad(nueva_cantidad)
 
-                if nuevo_valor is not None:
-                    if nuevo_valor <= 0:
-                        raise DatosProductoInvalidosError(
-                            "El valor del producto debe ser mayor a cero"
-                        )
-                    producto.valor = nuevo_valor
+    if nuevo_valor is not None:
+        producto.valor = self._validar_valor(nuevo_valor)
 
-                encontrado = True
-                break
-
-        if not encontrado:
-            raise ProductoNoEncontradoError(codigo)
-
-        self.storage.save(productos)
+    self.storage.save(productos)
         
 
     #ELIMINAR
