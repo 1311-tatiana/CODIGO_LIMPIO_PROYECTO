@@ -106,7 +106,7 @@ class JSONStorage:
         return [Producto(**item) for item in data]
 
     def save(self, productos: List[Producto]) -> None:
-         """
+        """
         Guarda los productos en el archivo JSON.
 
         Cada producto es serializado como un diccionario utilizando

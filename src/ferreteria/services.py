@@ -44,25 +44,110 @@ class InventarioService:
         """
         self.storage = storage
 
-    # CREAR
+    # --- Validadores privados ---
+
+    def _validar_producto(self, producto: Producto) -> None:
+        """
+        Valida que los datos del producto sean correctos.
+
+        Args:
+            producto (Producto): Producto a validar.
+
+        Raises:
+            DatosProductoInvalidosError: Si algún campo no es válido.
+        """
+        if not producto.nombre or not producto.nombre.strip():
+            raise DatosProductoInvalidosError("El nombre no puede estar vacío")
+
+        if producto.cantidad < 0:
+            raise DatosProductoInvalidosError("La cantidad no puede ser negativa")
+
+        if producto.valor <= 0:
+            raise DatosProductoInvalidosError("El valor debe ser mayor que cero")
+
+    def _verificar_codigo_unico(self, codigo: str, productos: List[Producto]) -> None:
+        """
+        Verifica que no exista otro producto con el mismo código.
+
+        Args:
+            codigo (str): Código a verificar.
+            productos (List[Producto]): Lista actual de productos.
+
+        Raises:
+            ProductoYaExisteError: Si el código ya está registrado.
+        """
+        if any(p.codigo == codigo for p in productos):
+            raise ProductoYaExisteError(codigo)
+
+    def _actualizar_nombre(self, producto: Producto, nuevo_nombre: str | None) -> None:
+        """Actualiza el nombre del producto si se proporcionó uno nuevo."""
+        if nuevo_nombre is not None:
+            producto.nombre = nuevo_nombre
+
+    def _actualizar_cantidad(self, producto: Producto, nueva_cantidad: int | None) -> None:
+        """
+        Actualiza la cantidad del producto si se proporcionó un valor nuevo.
+
+        Raises:
+            DatosProductoInvalidosError: Si la cantidad es negativa.
+        """
+        if nueva_cantidad is None:
+            return
+        if nueva_cantidad < 0:
+            raise DatosProductoInvalidosError("La cantidad no puede ser negativa")
+        producto.cantidad = nueva_cantidad
+
+    def _actualizar_valor(self, producto: Producto, nuevo_valor: float | None) -> None:
+        """
+        Actualiza el valor del producto si se proporcionó un valor nuevo.
+
+        Raises:
+            DatosProductoInvalidosError: Si el valor es cero o negativo.
+        """
+        if nuevo_valor is None:
+            return
+        if nuevo_valor <= 0:
+            raise DatosProductoInvalidosError("El valor debe ser mayor que cero")
+        producto.valor = nuevo_valor
+
+    def _aplicar_cambios(
+        self,
+        producto: Producto,
+        nuevo_nombre: str | None,
+        nueva_cantidad: int | None,
+        nuevo_valor: float | None,
+    ) -> None:
+        """
+        Aplica los cambios parciales a un producto existente.
+
+        Args:
+            producto (Producto): Producto a modificar.
+            nuevo_nombre (str | None): Nuevo nombre, si se desea cambiar.
+            nueva_cantidad (int | None): Nueva cantidad, si se desea cambiar.
+            nuevo_valor (float | None): Nuevo valor, si se desea cambiar.
+
+        Raises:
+            DatosProductoInvalidosError: Si algún valor nuevo no es válido.
+        """
+        self._actualizar_nombre(producto, nuevo_nombre)
+        self._actualizar_cantidad(producto, nueva_cantidad)
+        self._actualizar_valor(producto, nuevo_valor)
+
+    # --- CREAR ---
+
     def crear_producto(self, producto: Producto) -> None:
         """
         Registra un nuevo producto en el inventario.
-
-        Antes de guardar el producto se validan sus datos y se
-        verifica que no exista otro producto con el mismo código.
 
         Args:
             producto (Producto):
                 Instancia del producto que se desea registrar.
 
         Raises:
-            DatosProductoInvalidosError:
-                Si alguno de los datos del producto no cumple
-                con las reglas de validación.
-
             ProductoYaExisteError:
                 Si ya existe un producto registrado con el mismo código.
+            DatosProductoInvalidosError:
+                Si los datos del producto no son válidos.
 
         Returns:
             None
@@ -70,14 +155,13 @@ class InventarioService:
         self._validar_producto(producto)
 
         productos = self.storage.load()
-
-        if any(p.codigo == producto.codigo for p in productos):
-            raise ProductoYaExisteError(producto.codigo)
+        self._verificar_codigo_unico(producto.codigo, productos)
 
         productos.append(producto)
         self.storage.save(productos)
 
-    # LEER
+    # --- LEER ---
+
     def listar_productos(self) -> List[Producto]:
         """
         Obtiene la lista completa de productos registrados en el inventario.
@@ -116,9 +200,6 @@ class InventarioService:
         """
         Calcula el valor total del inventario.
 
-        El cálculo se realiza multiplicando la cantidad disponible
-        de cada producto por su valor unitario.
-
         Returns:
             float:
                 Valor total del inventario.
@@ -126,7 +207,8 @@ class InventarioService:
         productos = self.storage.load()
         return sum(p.cantidad * p.valor for p in productos)
 
-    # ACTUALIZAR
+    # --- ACTUALIZAR ---
+
     def actualizar_producto(
         self,
         codigo: str,
@@ -137,26 +219,15 @@ class InventarioService:
         """
         Actualiza la información de un producto existente.
 
-        Permite modificar el nombre, la cantidad o el valor del
-        producto de forma parcial.
-
         Args:
-            codigo (str):
-                Código del producto que se desea actualizar.
-
-            nuevo_nombre (str | None):
-                Nuevo nombre del producto.
-
-            nueva_cantidad (int | None):
-                Nueva cantidad disponible del producto.
-
-            nuevo_valor (float | None):
-                Nuevo valor unitario del producto.
+            codigo (str): Código del producto que se desea actualizar.
+            nuevo_nombre (str | None): Nuevo nombre del producto.
+            nueva_cantidad (int | None): Nueva cantidad disponible.
+            nuevo_valor (float | None): Nuevo valor unitario.
 
         Raises:
             ProductoNoEncontradoError:
                 Si el producto con el código indicado no existe.
-
             DatosProductoInvalidosError:
                 Si alguno de los nuevos valores no es válido.
 
@@ -164,39 +235,20 @@ class InventarioService:
             None
         """
         productos = self.storage.load()
+        producto = self.buscar_producto(codigo)
 
-        producto = None
-        for p in productos:
-            if p.codigo == codigo:
-                producto = p
-                break
-
-        if producto is None:
-            raise ProductoNoEncontradoError(codigo)
-
-        if nuevo_nombre is not None:
-            producto.nombre = nuevo_nombre
-
-        if nueva_cantidad is not None:
-            if nueva_cantidad < 0:
-                raise DatosProductoInvalidosError("La cantidad no puede ser negativa")
-            producto.cantidad = nueva_cantidad
-
-        if nuevo_valor is not None:
-            if nuevo_valor <= 0:
-                raise DatosProductoInvalidosError("El valor debe ser mayor que cero")
-            producto.valor = nuevo_valor
+        self._aplicar_cambios(producto, nuevo_nombre, nueva_cantidad, nuevo_valor)
 
         self.storage.save(productos)
 
-    # ELIMINAR
+    # --- ELIMINAR ---
+
     def eliminar_producto(self, codigo: str) -> None:
         """
         Elimina un producto del inventario.
 
         Args:
-            codigo (str):
-                Código del producto que se desea eliminar.
+            codigo (str): Código del producto que se desea eliminar.
 
         Raises:
             ProductoNoEncontradoError:
@@ -206,46 +258,9 @@ class InventarioService:
             None
         """
         productos = self.storage.load()
-
         filtrados = [p for p in productos if p.codigo != codigo]
 
         if len(filtrados) == len(productos):
             raise ProductoNoEncontradoError(codigo)
 
         self.storage.save(filtrados)
-
-    # VALIDACIÓN
-    def _validar_producto(self, producto: Producto) -> None:
-        """
-        Valida los datos de un producto antes de almacenarlo.
-
-        Args:
-            producto (Producto):
-                Producto que se desea validar.
-
-        Raises:
-            DatosProductoInvalidosError:
-                Si alguno de los campos del producto es inválido.
-
-        Returns:
-            None
-        """
-        if not producto.codigo.strip():
-            raise DatosProductoInvalidosError(
-                "El código del producto no puede estar vacío"
-            )
-
-        if not producto.nombre.strip():
-            raise DatosProductoInvalidosError(
-                "El nombre del producto no puede estar vacío"
-            )
-
-        if producto.cantidad < 0:
-            raise DatosProductoInvalidosError(
-                "La cantidad no puede ser negativa"
-            )
-
-        if producto.valor <= 0:
-            raise DatosProductoInvalidosError(
-                "El valor del producto debe ser mayor a cero"
-            )

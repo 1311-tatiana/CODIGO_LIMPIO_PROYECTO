@@ -1,4 +1,4 @@
-# src/ferreteria/exceptions.py
+#src/ferreteria/exceptions.py
 """
 Módulo de excepciones personalizadas del sistema de ferretería.
 
@@ -60,7 +60,7 @@ class ProductoNoEncontradoError(ProductoError):
     """
 
     def __init__(self, codigo: str) -> None:
-         """
+        """
         Inicializa la excepción con el código del producto no encontrado.
 
         Args:
@@ -74,7 +74,7 @@ class ProductoNoEncontradoError(ProductoError):
 
 
 class ProductoYaExisteError(ProductoError):
-        """
+    """
     Excepción lanzada cuando se intenta registrar un producto que ya existe.
 
     Esta excepción se genera cuando se intenta crear o registrar un producto
@@ -121,7 +121,7 @@ class DatosProductoInvalidosError(ProductoError):
     """
 
     def __init__(self, mensaje: str) -> None:
-                """
+        """
         Inicializa la excepción con un mensaje descriptivo del error.
 
         Args:
