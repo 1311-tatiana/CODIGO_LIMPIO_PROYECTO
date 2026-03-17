@@ -1,0 +1,39 @@
+
+Copiar
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+ 
+# Entorno virtual
+.venv/
+venv/
+env/
+ 
+# uv
+.uv/
+ 
+# pytest
+.pytest_cache/
+.cache/
+ 
+# Distribución / empaquetado
+dist/
+build/
+*.egg-info/
+ 
+# Editores
+.vscode/
+.idea/
+*.swp
+*.swo
+ 
+# Sistema operativo
+.DS_Store
+Thumbs.db
+ 
+# Datos locales
+data/database.json
