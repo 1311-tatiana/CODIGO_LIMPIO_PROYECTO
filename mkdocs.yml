@@ -1,4 +1,4 @@
-site_name: User management project
+site_name: Ferretería Inventario
 theme:
   name: material
   palette:
@@ -8,7 +8,7 @@ theme:
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
-    - scheme: slate # modo oscuro
+    - scheme: slate
       primary: indigo
       accent: indigo
       toggle:
@@ -16,7 +16,7 @@ theme:
         name: Switch to light mode
 
 plugins:
-  - search:
+  - search
   - mkdocstrings:
       handlers:
         python:
@@ -24,9 +24,12 @@ plugins:
 
 nav:
   - Inicio: index.md
-  - Guía de usuario: guia_usuario.md
-  - Referencia técnica:
-    - API de python: referencia/api.md
+  - Primeros pasos: getting-started.md
+  - Guía de usuario:
+    - Comandos CLI: user-guide/commands.md
+    - Persistencia: user-guide/persistence.md
+  - Arquitectura: architecture.md
+  - Referencia API: reference.md
 
 markdown_extensions:
   - admonition
