@@ -25,7 +25,7 @@ jobs:
         run: uv run python -m pytest -v
 
       - name: Check code complexity
-        run: uv run radon cc src -a
+        run: uv run python -m radon cc src -a
 
       - name: Enforce complexity threshold
-        run: uv run xenon src --max-absolute B --max-average A
+        run: uv run python -m xenon src --max-absolute B --max-modules A --max-average A
