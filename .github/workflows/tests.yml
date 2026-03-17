@@ -22,7 +22,7 @@ jobs:
         run: uv run ruff check .
 
       - name: Run tests
-        run: uv run pytest -v
+        run: uv run python -m pytest -v
 
       - name: Check code complexity
         run: uv run radon cc src -a
