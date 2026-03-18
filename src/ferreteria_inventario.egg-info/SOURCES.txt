@@ -1,0 +1,14 @@
+README.md
+pyproject.toml
+src/ferreteria/__init__.py
+src/ferreteria/exceptions.py
+src/ferreteria/services.py
+src/ferreteria/storage.py
+src/ferreteria/models/__init__.py
+src/ferreteria/models/producto.py
+src/ferreteria_inventario.egg-info/PKG-INFO
+src/ferreteria_inventario.egg-info/SOURCES.txt
+src/ferreteria_inventario.egg-info/dependency_links.txt
+src/ferreteria_inventario.egg-info/requires.txt
+src/ferreteria_inventario.egg-info/top_level.txt
+tests/test_services.py

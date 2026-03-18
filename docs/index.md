@@ -1,16 +1,19 @@
-# Sistema de Inventario de Ferretería
+# Sistema de Inventario para Ferretería
+
+Bienvenido a la documentación del sistema de gestión de inventario para una ferretería, desarrollado como una aplicación de línea de comandos (CLI) en Python.
 
 ## Propósito del Proyecto
 
-El objetivo principal del proyecto es desarrollar una aplicación que permita:
+Este sistema permite administrar productos de una ferretería de forma sencilla y eficiente desde la terminal, aplicando principios de código limpio y arquitectura por capas.
+
+Esta diseñado para:
 
 - Gestionar productos dentro de un inventario
-- Aplicar principios de **código limpio**
-- Implementar una **arquitectura modular**
-- Generar **documentación técnica automática**
-- Utilizar herramientas modernas del ecosistema Python
-
-Además, el proyecto demuestra el uso de herramientas de documentación como **MkDocs** y **mkdocstrings**, permitiendo generar documentación técnica automáticamente a partir de los docstrings del código.
+- Registrar productos
+- Consultar información
+- Actualizar inventario
+- Eliminar productos 
+- Persistir datos en archivos JSON
 
 ...
 
@@ -18,17 +21,40 @@ Además, el proyecto demuestra el uso de herramientas de documentación como **M
 
 El sistema ofrece las siguientes funcionalidades:
 
-- Registrar nuevos productos en el inventario
-- Consultar productos por su código
-- Listar todos los productos registrados
-- Actualizar la información de un producto existente
-- Eliminar productos del inventario
-- Calcular el valor total del inventario
-- Persistencia de datos mediante archivo JSON
-- Interfaz CLI desarrollada con Typer
+- Interfaz de línea de comandos (CLI) usando Typer
+-Persistencia de datos en archivo JSON
+- Validación de datos de entrada
+- Manejo de exepciones personalizado
+- Arquitectura modular y escalable
+- Documentación automatica con MKDocs
 
 ...
 
 ## Arquitectura General
 
-El proyecto está organizado utilizando una arquitectura por capas que separa responsabilidades dentro del sistema.
+El proyecto está organizado en capas para separar responsabilidades:
+
+Modelos: Representación de datos (Producto)
+
+Servicios: Lógica de negocio
+
+Storage: Persistencia en JSON
+
+CLI: Interacción con el usuario
+
+...
+
+## Documentación 
+
+Puedes navegar en las diferentes secciones para conocer más sobre:
+
+- Instlación del proyecto
+- Arquitectura 
+- Referencia del código 
+- Uso de comandos 
+- Persistencia de datos 
+
+## Autores 
+Santiago Ossa 
+Tatiana Montoya Toro 
+Proyecto académico - Código limpio 
