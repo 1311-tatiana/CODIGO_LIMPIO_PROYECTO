@@ -60,59 +60,69 @@ Actions
 **Requisitos:** Python 3.12+ y [uv](https://docs.astral.sh/uv/) instalado.
 
 # 1. Clonar el repositorio
+```bash
 git clone https://github.com/1311-tatiana/CODIGO_LIMPIO_PROYECTO.git
 cd CODIGO_LIMPIO_PROYECTO
-
+```
 # 2. Crear entorno virtual con uv
+```bash
 uv venv
-
+```
 # 3. Instalar dependencias
+```bash
 uv pip install typer rich pytest ruff
-
+```
 
 ## Manual de la CLI
 
 ### Crear un producto
-
+```bash
 uv run python main.py crear P001 "Martillo" 10 15000
 #                           ^    ^           ^   ^
 #                        codigo nombre   cantidad valor
-
+```
 
 ### Listar todos los productos
+```bash
 uv run python main.py listar
-
+```
 
 ### Buscar un producto por código
-
+```bash
 uv run python main.py buscar P001
-
+```
 
 ### Ver valor total del inventario
+```bash
 uv run python main.py total
-
+```
 
 ### Actualizar un producto
 
 # Actualizar solo la cantidad
+```bash
 uv run python main.py actualizar P001 --cantidad 25
-
+```
 # Actualizar solo el valor
+```bash
 uv run python main.py actualizar P001 --valor 18000
-
+```
 # Actualizar nombre y cantidad
+```bash
 uv run python main.py actualizar P001 --nombre "Martillo Grande" --cantidad 5
-
+```
 
 ### Eliminar un producto
+```bash
 uv run python main.py eliminar P001
-
+```
 # Se pedirá confirmación antes de eliminar
 
 
 ##  Instrucciones de Testing
+```bash
 uv run pytest
-
+```
 
 Los tests cubren los siguientes escenarios:
 

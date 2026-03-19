@@ -15,7 +15,7 @@ Esta diseñado para:
 - Eliminar productos 
 - Persistir datos en archivos JSON
 
-...
+_____________________________________________________________________________________________________
 
 ## Características Principales
 
@@ -28,7 +28,7 @@ El sistema ofrece las siguientes funcionalidades:
 - Arquitectura modular y escalable
 - Documentación automatica con MKDocs
 
-...
+_____________________________________________________________________________________________________
 
 ## Arquitectura General
 
@@ -42,8 +42,7 @@ Storage: Persistencia en JSON
 
 CLI: Interacción con el usuario
 
-...
-
+_____________________________________________________________________________________________________
 ## Documentación 
 
 Puedes navegar en las diferentes secciones para conocer más sobre:
@@ -53,6 +52,8 @@ Puedes navegar en las diferentes secciones para conocer más sobre:
 - Referencia del código 
 - Uso de comandos 
 - Persistencia de datos 
+
+_____________________________________________________________________________________________________
 
 ## Autores 
 Santiago Ossa 
