@@ -24,6 +24,7 @@ El propósito principal de este proyecto es facilitar el control de inventarios 
 
 ## 🗂 Estructura del proyecto
 
+```bash
 ferreteria-inventario/
 ├── .github/
 │   └── workflows/
@@ -52,7 +53,7 @@ Actions
 ├── .gitignore
 ├── pyproject.toml
 └── README.md
-
+```
 
 ## Guía de instalación
 
@@ -114,6 +115,7 @@ uv run pytest
 
 
 Los tests cubren los siguientes escenarios:
+
 
 | # | Tipo | Descripción |
 |---|------|-------------|

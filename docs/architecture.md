@@ -2,6 +2,7 @@
 
 El proyecto utiliza el patrón src layout, donde todo el código fuente se encuentra dentro de la carpeta src.
 
+```bash
 src/
 └── ferreteria/
     |models/
@@ -9,8 +10,10 @@ src/
     ├── services.py
     ├── storage.py
     └── exceptions.py
+```
 
 Esta estructura ayuda a separar claramente el código del proyecto de otros archivos como pruebas, documentación o configuraciones.
+
 
 # Capas del sistema
 
@@ -59,6 +62,7 @@ Esto mejora la legibilidad del código y facilita el manejo de errores dentro de
 
 El flujo de funcionamiento del sistema es el siguiente:
 
+```bash
 CLI (main.py)
      ↓
 Servicios (services.py)
@@ -68,15 +72,15 @@ Modelos (producto.py)
 Almacenamiento (storage.py)
      ↓
 Archivo JSON
-
+```
 De esta manera, cada componente cumple un rol específico dentro del sistema.
 Principios de código limpio aplicados
 
 # principios de código limpio:
-
+```bash
 -Separación de responsabilidades: cada módulo cumple una función específica.
 -Modelos claros: uso de dataclasses para representar entidades.
--Validaciones centralizadas: implementadas en los modelos mediante __post_init__.
+-Validaciones centralizadas: implementadas en los modelos mediante  __post_init__.
 -Organización modular: división del sistema en componentes independientes.
 -Legibilidad del código: nombres claros para variables, funciones y clases.
-
+```
