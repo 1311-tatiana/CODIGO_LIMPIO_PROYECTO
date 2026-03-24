@@ -12,7 +12,7 @@ uv --version
 luego Puedes obtener el proyecto de dos formas:
 
 Opción 1: Clonar con git
-```bash
+```sh
 git clone https://github.com/1311-tatiana/CODIGO_LIMPIO_PROYECTO.git
 cd CODIGO_LIMPIO_PROYECTO
 ```
