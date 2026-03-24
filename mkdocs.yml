@@ -32,6 +32,7 @@ nav:
   - Referencia API: reference.md
 
 markdown_extensions:
+ markdown_extensions:
   - admonition
   - pymdownx.details
   - pymdownx.superfences:
@@ -40,5 +41,7 @@ markdown_extensions:
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.tabbed
-  - pymdownx.highlight
+  - pymdownx.highlight:
+      use_pygments: true
+      guess_lang: false
   - pymdownx.inlinehilite
