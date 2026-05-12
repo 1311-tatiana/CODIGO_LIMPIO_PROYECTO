@@ -11,13 +11,13 @@ persistencia (storage) y las interfaces de usuario (CLI).
 
 from typing import List
 
-from .exceptions import (
+from ..core.exceptions import (
     DatosProductoInvalidosError,
     ProductoNoEncontradoError,
     ProductoYaExisteError,
 )
-from .models import Producto
-from .storage import Storage
+from ..schemas.producto import Producto
+from ..storage.storage import Storage
 
 
 class InventarioService:

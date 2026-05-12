@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from ..exceptions import DatosProductoInvalidosError
+from ..core.exceptions import DatosProductoInvalidosError
 
 
 @dataclass

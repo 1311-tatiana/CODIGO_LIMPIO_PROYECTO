@@ -16,7 +16,7 @@ import json
 from pathlib import Path
 from typing import List, Protocol
 
-from .models import Producto
+from ..schemas.producto import Producto
 
 
 class Storage(Protocol):

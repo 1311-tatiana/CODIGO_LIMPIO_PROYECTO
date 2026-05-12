@@ -22,13 +22,13 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from src.ferreteria.exceptions import (
+from core.exceptions import (
     DatosProductoInvalidosError,
     ProductoNoEncontradoError,
     ProductoYaExisteError,
 )
-from src.ferreteria.models import Producto
-from src.ferreteria.services import InventarioService
+from src.services.services import Producto
+from services.services import InventarioService
 
 # Helpers
 

@@ -29,10 +29,10 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
-from src.ferreteria.exceptions import AppError
+from core.exceptions import AppError
 from src.ferreteria.models import Producto
-from src.ferreteria.services import InventarioService
-from src.ferreteria.storage import JSONStorage
+from services.services import InventarioService
+from storage.storage import JSONStorage
 
 app = typer.Typer()
 console = Console()
