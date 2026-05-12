@@ -4,19 +4,21 @@ Capa de persistencia del sistema de inventario.
 Este módulo define las interfaces y las implementaciones responsables
 de almacenar y recuperar los datos del inventario.
 
-La persistencia se realiza utilizando archivos JSON locales, permitiendo
-almacenar los productos registrados en el sistema de manera estructurada
-y fácilmente legible.
+La persistencia se realiza utilizando archivos JSON locales,
+permitiendo almacenar los productos registrados en el sistema
+de manera estructurada y fácilmente legible.
 
-El módulo implementa una abstracción mediante el protocolo `Storage`,
-permitiendo que diferentes mecanismos de almacenamiento puedan ser
-utilizados sin modificar la lógica de negocio.
+El módulo implementa una abstracción mediante el protocolo
+`Storage`, permitiendo utilizar diferentes mecanismos de
+almacenamiento sin modificar la lógica de negocio.
 """
+
 import json
+
 from pathlib import Path
 from typing import List, Protocol
 
-from ..schemas.producto import Producto
+from src.schemas.producto import Producto
 
 
 class Storage(Protocol):
@@ -24,37 +26,39 @@ class Storage(Protocol):
     Protocolo que define la interfaz de almacenamiento del sistema.
 
     Este protocolo establece los métodos que cualquier implementación
-    de almacenamiento debe proporcionar. Permite desacoplar la lógica
-    de negocio del mecanismo específico de persistencia.
+    de almacenamiento debe proporcionar.
 
     Methods:
         load():
             Recupera todos los productos almacenados.
 
         save(productos):
-            Persiste una lista de productos en el sistema de almacenamiento.
+            Guarda los productos en el almacenamiento.
     """
+
     def load(self) -> List[Producto]:
         """
         Carga todos los productos almacenados.
 
         Returns:
             List[Producto]:
-                Lista de productos recuperados del almacenamiento.
+                Lista de productos recuperados.
         """
+
         ...
 
-    def save(self, productos: List[Producto]) -> None: 
+    def save(self, productos: List[Producto]) -> None:
         """
-        Guarda una lista de productos en el almacenamiento.
+        Guarda una lista de productos.
 
         Args:
             productos (List[Producto]):
-                Lista de productos que se desea persistir.
+                Productos a almacenar.
 
         Returns:
             None
         """
+
         ...
 
 
@@ -62,65 +66,83 @@ class JSONStorage:
     """
     Implementación de almacenamiento basada en archivos JSON.
 
-    Esta clase gestiona la persistencia de los productos utilizando
-    un archivo JSON local. Cada producto se serializa como un objeto
-    JSON dentro de una lista.
+    Esta clase permite guardar y recuperar productos desde
+    un archivo JSON local.
 
     Attributes:
         filepath (Path):
-            Ruta al archivo JSON donde se almacenan los productos.
+            Ruta del archivo JSON.
     """
 
     def __init__(self, filepath: Path) -> None:
         """
-        Inicializa el sistema de almacenamiento JSON.
+        Inicializa el almacenamiento JSON.
 
         Args:
             filepath (Path):
-                Ruta del archivo JSON utilizado como base de datos
-                del inventario.
+                Ruta del archivo JSON utilizado
+                como base de datos.
 
         Returns:
             None
         """
+
         self.filepath = filepath
 
     def load(self) -> List[Producto]:
         """
-        Carga los productos almacenados en el archivo JSON.
+        Carga los productos almacenados.
 
-        Si el archivo no existe, se retorna una lista vacía,
-        permitiendo inicializar el inventario sin errores.
+        Si el archivo no existe, retorna una lista vacía.
 
         Returns:
             List[Producto]:
-                Lista de objetos `Producto` reconstruidos a partir
-                de los datos almacenados en el archivo JSON.
+                Lista de productos recuperados
+                desde el archivo JSON.
         """
+
         if not self.filepath.exists():
             return []
 
-        with open(self.filepath, "r", encoding="utf-8") as f:
-            data = json.load(f)
+        with open(
+            self.filepath,
+            "r",
+            encoding="utf-8"
+        ) as file:
 
-        return [Producto(**item) for item in data]
+            data = json.load(file)
+
+        return [
+            Producto(**item)
+            for item in data
+        ]
 
     def save(self, productos: List[Producto]) -> None:
         """
-        Guarda los productos en el archivo JSON.
-
-        Cada producto es serializado como un diccionario utilizando
-        sus atributos internos. El archivo JSON resultante contiene
-        una lista de objetos que representan los productos del
-        inventario.
+        Guarda productos en el archivo JSON.
 
         Args:
             productos (List[Producto]):
-                Lista de productos que se desean guardar.
+                Lista de productos a guardar.
 
         Returns:
             None
         """
-        self.filepath.parent.mkdir(parents=True, exist_ok=True)
-        with open(self.filepath, "w", encoding="utf-8") as f:
-            json.dump([p.__dict__ for p in productos], f, indent=2, ensure_ascii=False)
+
+        self.filepath.parent.mkdir(
+            parents=True,
+            exist_ok=True
+        )
+
+        with open(
+            self.filepath,
+            "w",
+            encoding="utf-8"
+        ) as file:
+
+            json.dump(
+                [p.__dict__ for p in productos],
+                file,
+                indent=2,
+                ensure_ascii=False
+            )
