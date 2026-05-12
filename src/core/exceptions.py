@@ -1,6 +1,5 @@
-#src/ferreteria/exceptions.py
 """
-Módulo de excepciones personalizadas del sistema de ferretería.
+Módulo de excepciones personalizadas del sistema de inventario.
 
 Este módulo define las excepciones utilizadas en la aplicación para
 gestionar errores relacionados con la lógica de negocio del sistema,
@@ -9,6 +8,7 @@ especialmente en las operaciones relacionadas con productos.
 Las excepciones permiten separar claramente los errores de dominio
 de otros tipos de errores del sistema.
 """
+
 
 class AppError(Exception):
     """
@@ -20,7 +20,8 @@ class AppError(Exception):
     del sistema o de librerías externas.
 
     Raises:
-        Exception: Hereda de la excepción base de Python.
+        Exception:
+            Hereda de la excepción base de Python.
     """
 
     pass
@@ -35,7 +36,8 @@ class ProductoError(AppError):
     productos de forma específica dentro de la capa de servicios.
 
     Raises:
-        AppError: Si ocurre un error relacionado con la gestión de productos.
+        AppError:
+            Si ocurre un error relacionado con la gestión de productos.
     """
 
     pass
@@ -50,13 +52,16 @@ class ProductoNoEncontradoError(ProductoError):
     sistema de almacenamiento.
 
     Args:
-        codigo (str): Código único del producto que se intentó buscar.
+        codigo (str):
+            Código único del producto que se intentó buscar.
 
     Attributes:
-        codigo (str): Código del producto que no fue encontrado.
+        codigo (str):
+            Código del producto que no fue encontrado.
 
     Raises:
-        ProductoError: Cuando el producto solicitado no existe.
+        ProductoError:
+            Cuando el producto solicitado no existe.
     """
 
     def __init__(self, codigo: str) -> None:
@@ -64,13 +69,19 @@ class ProductoNoEncontradoError(ProductoError):
         Inicializa la excepción con el código del producto no encontrado.
 
         Args:
-            codigo (str): Código único del producto que no fue encontrado.
+            codigo (str):
+                Código único del producto que no fue encontrado.
 
         Returns:
             None
         """
+
         self.codigo = codigo
-        super().__init__(f"No se encontró ningún producto con el código '{codigo}'")
+
+        super().__init__(
+            f"No se encontró ningún producto "
+            f"con el código '{codigo}'"
+        )
 
 
 class ProductoYaExisteError(ProductoError):
@@ -81,13 +92,16 @@ class ProductoYaExisteError(ProductoError):
     utilizando un código que ya está presente en el sistema.
 
     Args:
-        codigo (str): Código del producto que ya está registrado.
+        codigo (str):
+            Código del producto que ya está registrado.
 
     Attributes:
-        codigo (str): Código duplicado que provocó el error.
+        codigo (str):
+            Código duplicado que provocó el error.
 
     Raises:
-        ProductoError: Cuando se intenta registrar un producto duplicado.
+        ProductoError:
+            Cuando se intenta registrar un producto duplicado.
     """
 
     def __init__(self, codigo: str) -> None:
@@ -95,29 +109,38 @@ class ProductoYaExisteError(ProductoError):
         Inicializa la excepción indicando el código duplicado.
 
         Args:
-            codigo (str): Código del producto que ya existe en el sistema.
+            codigo (str):
+                Código del producto que ya existe en el sistema.
 
         Returns:
             None
         """
+
         self.codigo = codigo
-        super().__init__(f"Ya existe un producto con el código '{codigo}'")
+
+        super().__init__(
+            f"Ya existe un producto "
+            f"con el código '{codigo}'"
+        )
 
 
 class DatosProductoInvalidosError(ProductoError):
     """
-    Excepción lanzada cuando los datos proporcionados para un producto son inválidos.
+    Excepción lanzada cuando los datos proporcionados para un producto
+    son inválidos.
 
     Esta excepción se utiliza para indicar que los datos recibidos
     para crear o actualizar un producto no cumplen con las reglas
     de validación definidas por la aplicación.
 
     Args:
-        mensaje (str): Descripción del error de validación.
+        mensaje (str):
+            Descripción del error de validación.
 
     Raises:
-        ProductoError: Cuando los datos del producto no cumplen con
-        los criterios de validación establecidos.
+        ProductoError:
+            Cuando los datos del producto no cumplen con
+            los criterios de validación establecidos.
     """
 
     def __init__(self, mensaje: str) -> None:
@@ -125,9 +148,11 @@ class DatosProductoInvalidosError(ProductoError):
         Inicializa la excepción con un mensaje descriptivo del error.
 
         Args:
-            mensaje (str): Descripción del problema detectado en los datos.
+            mensaje (str):
+                Descripción del problema detectado en los datos.
 
         Returns:
             None
         """
+
         super().__init__(mensaje)
