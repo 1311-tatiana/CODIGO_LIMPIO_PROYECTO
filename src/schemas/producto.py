@@ -1,132 +1,33 @@
-"""
-Módulo del modelo Producto.
+"""Schemas Pydantic para la entidad Producto."""
 
-Este módulo define la estructura y validaciones del modelo
-Producto utilizado en el sistema de inventario de ferretería.
-"""
-
-from dataclasses import dataclass
-
-from src.core.exceptions import DatosProductoInvalidosError
+from pydantic import BaseModel, ConfigDict, Field
 
 
-@dataclass
-class Producto:
-    """
-    Modelo que representa un producto dentro del inventario
-    de la ferretería.
+class ProductoBase(BaseModel):
+    """Campos comunes de un producto."""
 
-    Este modelo encapsula la información básica de cada producto
-    almacenado en el sistema. Cada producto contiene un
-    identificador único, un nombre, la cantidad disponible
-    en inventario y el valor unitario.
+    codigo: str = Field(..., min_length=1, max_length=50, examples=["P001"])
+    nombre: str = Field(..., min_length=1, max_length=120, examples=["Martillo"])
+    cantidad: int = Field(..., ge=0, examples=[10])
+    valor: float = Field(..., gt=0, examples=[15000.0])
 
-    Attributes:
-        codigo (str):
-            Identificador único del producto dentro del inventario.
 
-        nombre (str):
-            Nombre descriptivo del producto.
+class ProductoCreate(ProductoBase):
+    """Datos requeridos para crear un producto."""
 
-        cantidad (int):
-            Cantidad disponible del producto en el inventario.
 
-        valor (float):
-            Precio unitario del producto.
-    """
+class ProductoUpdate(BaseModel):
+    """Datos permitidos para actualizar un producto parcialmente."""
 
-    codigo: str
-    nombre: str
-    cantidad: int
-    valor: float
+    codigo: str | None = Field(default=None, min_length=1, max_length=50)
+    nombre: str | None = Field(default=None, min_length=1, max_length=120)
+    cantidad: int | None = Field(default=None, ge=0)
+    valor: float | None = Field(default=None, gt=0)
 
-    def __post_init__(self) -> None:
-        """
-        Método especial de los `dataclass` que se ejecuta
-        automáticamente después de inicializar una instancia
-        del modelo.
 
-        Se utiliza para validar los valores de los atributos
-        del producto y garantizar que los datos almacenados
-        sean consistentes.
+class ProductoResponse(ProductoBase):
+    """Respuesta enviada por la API al consultar productos."""
 
-        Returns:
-            None
-        """
+    model_config = ConfigDict(from_attributes=True)
 
-        self._validar_codigo()
-        self._validar_nombre()
-        self._validar_cantidad()
-        self._validar_valor()
-
-    def _validar_codigo(self) -> None:
-        """
-        Valida que el código del producto no esté vacío.
-
-        Raises:
-            DatosProductoInvalidosError:
-                Si el código del producto es una cadena vacía.
-
-        Returns:
-            None
-        """
-
-        if not self.codigo or not self.codigo.strip():
-
-            raise DatosProductoInvalidosError(
-                "El código del producto no puede estar vacío"
-            )
-
-    def _validar_nombre(self) -> None:
-        """
-        Valida que el nombre del producto no esté vacío.
-
-        Raises:
-            DatosProductoInvalidosError:
-                Si el nombre del producto es una cadena vacía.
-
-        Returns:
-            None
-        """
-
-        if not self.nombre or not self.nombre.strip():
-
-            raise DatosProductoInvalidosError(
-                "El nombre del producto no puede estar vacío"
-            )
-
-    def _validar_cantidad(self) -> None:
-        """
-        Valida que la cantidad del producto no sea negativa.
-
-        Raises:
-            DatosProductoInvalidosError:
-                Si la cantidad del producto es menor que cero.
-
-        Returns:
-            None
-        """
-
-        if self.cantidad < 0:
-
-            raise DatosProductoInvalidosError(
-                "La cantidad no puede ser negativa"
-            )
-
-    def _validar_valor(self) -> None:
-        """
-        Valida que el valor del producto no sea negativo.
-
-        Raises:
-            DatosProductoInvalidosError:
-                Si el valor del producto es menor o igual a cero.
-
-        Returns:
-            None
-        """
-
-        if self.valor <= 0:
-
-            raise DatosProductoInvalidosError(
-                "El valor del producto debe ser mayor que cero"
-            )
+    id: int

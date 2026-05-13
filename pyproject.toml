@@ -1,19 +1,29 @@
 [project]
 name = "ferreteria-inventario"
 version = "0.1.0"
-description = "Sistema de inventario y ventas para ferretería"
+description = "Backend API con FastAPI y Supabase para inventario de ferreteria"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "pytest>=9.0.2",
-    "radon>=6.0.1",
-    "rich>=14.0.0",
-    "ruff>=0.5.0",
+    "fastapi>=0.115.0",
+    "httpx>=0.27.0",
+    "pydantic>=2.8.0",
+    "python-dotenv>=1.0.1",
+    "supabase>=2.6.0",
     "typer>=0.12.0",
-    "xenon>=0.9.0",
+    "rich>=14.0.0",
+    "uvicorn[standard]>=0.30.0",
+]
+
+[project.optional-dependencies]
+dev = [
     "mkdocs>=1.6.0",
     "mkdocs-material>=9.5.0",
     "mkdocstrings[python]>=0.25.0",
+    "pytest>=8.3.0",
+    "radon>=6.0.1",
+    "ruff>=0.5.0",
+    "xenon>=0.9.0",
 ]
 
 [tool.ruff]

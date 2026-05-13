@@ -1,24 +1,31 @@
-"""
-Módulo de configuración global del sistema.
+"""Configuracion central de la API."""
 
-Este módulo centraliza las constantes y configuraciones
-utilizadas por la aplicación de inventario de ferretería.
-
-Actualmente incluye:
-
-- Ruta del archivo de almacenamiento JSON.
-- Nombre de la aplicación.
-
-Estas configuraciones permiten evitar valores
-hardcodeados en múltiples módulos del sistema.
-"""
-
+import os
+from dataclasses import dataclass
 from pathlib import Path
 
+from dotenv import load_dotenv
 
-# Ruta del archivo de almacenamiento JSON
-DATABASE_PATH = Path("data/database.json")
+load_dotenv()
 
 
-# Nombre de la aplicación
-APP_NAME = "Sistema de Inventario Ferreteria"
+@dataclass(frozen=True)
+class Settings:
+    """Valores de configuracion leidos desde variables de entorno."""
+
+    app_name: str = "Inventario Ferreteria API"
+    app_version: str = "1.0.0"
+    database_path: Path = Path("src/storage/database.json")
+    supabase_url: str | None = os.getenv("SUPABASE_URL")
+    supabase_key: str | None = os.getenv("SUPABASE_KEY")
+    supabase_table_productos: str = os.getenv("SUPABASE_TABLE_PRODUCTOS", "productos")
+    use_supabase: bool = os.getenv("USE_SUPABASE", "false").lower() == "true"
+
+    @property
+    def supabase_configured(self) -> bool:
+        """Indica si existen credenciales minimas para usar Supabase."""
+
+        return bool(self.supabase_url and self.supabase_key)
+
+
+settings = Settings()

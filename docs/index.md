@@ -1,61 +1,21 @@
-# Sistema de Inventario para Ferretería
+# Ferreteria Inventario API
 
-Bienvenido a la documentación del sistema de gestión de inventario para una ferretería, desarrollado como una aplicación de línea de comandos (CLI) en Python.
+Backend para administrar productos de una ferreteria usando FastAPI, Pydantic y una capa de persistencia preparada para Supabase.
 
-## Propósito del Proyecto
+## Funcionalidades
 
-Este sistema permite administrar productos de una ferretería de forma sencilla y eficiente desde la terminal, aplicando principios de código limpio y arquitectura por capas.
+- CRUD completo de productos.
+- Documentacion automatica en `/docs` y `/redoc`.
+- Validacion de datos con Pydantic.
+- Separacion de responsabilidades por capas.
+- Modo local con JSON y modo real con Supabase.
 
-Esta diseñado para:
+## Capas principales
 
-- Gestionar productos dentro de un inventario
-- Registrar productos
-- Consultar información
-- Actualizar inventario
-- Eliminar productos 
-- Persistir datos en archivos JSON
-
-_____________________________________________________________________________________________________
-
-## Características Principales
-
-El sistema ofrece las siguientes funcionalidades:
-
-- Interfaz de línea de comandos (CLI) usando Typer
--Persistencia de datos en archivo JSON
-- Validación de datos de entrada
-- Manejo de exepciones personalizado
-- Arquitectura modular y escalable
-- Documentación automatica con MKDocs
-
-_____________________________________________________________________________________________________
-
-## Arquitectura General
-
-El proyecto está organizado en capas para separar responsabilidades:
-
-Modelos: Representación de datos (Producto)
-
-Servicios: Lógica de negocio
-
-Storage: Persistencia en JSON
-
-CLI: Interacción con el usuario
-
-_____________________________________________________________________________________________________
-## Documentación 
-
-Puedes navegar en las diferentes secciones para conocer más sobre:
-
-- Instlación del proyecto
-- Arquitectura 
-- Referencia del código 
-- Uso de comandos 
-- Persistencia de datos 
-
-_____________________________________________________________________________________________________
-
-## Autores 
-Santiago Ossa 
-Tatiana Montoya Toro 
-Proyecto académico - Código limpio 
+```text
+api/       Endpoints HTTP y routers de FastAPI
+schemas/   Contratos Pydantic de entrada y salida
+services/  Logica de negocio
+storage/   Repositorios JSON/Supabase
+core/      Configuracion y excepciones
+```

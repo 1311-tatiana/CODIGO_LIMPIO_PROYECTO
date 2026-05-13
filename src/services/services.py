@@ -1,278 +1,72 @@
-"""
-Servicios de lógica de negocio para la gestión del inventario.
+"""Capa de servicios con la logica de negocio de productos."""
 
-Este módulo contiene la capa de servicios del sistema, responsable
-de implementar las reglas de negocio relacionadas con la gestión
-de productos en el inventario.
+from src.core.exceptions import ProductoNoEncontradoError, ProductoYaExisteError
+from src.schemas.producto import ProductoCreate, ProductoResponse, ProductoUpdate
+from src.storage.storage import ProductoRepository
 
-La capa de servicios actúa como intermediaria entre la capa de
-persistencia (storage) y las interfaces de usuario (CLI).
-"""
 
-from typing import List
+class ProductoService:
+    """Servicio principal para gestionar productos del inventario."""
 
-from src.core.exceptions import (
-    DatosProductoInvalidosError,
-    ProductoNoEncontradoError,
-    ProductoYaExisteError,
-)
+    def __init__(self, repository: ProductoRepository) -> None:
+        self.repository = repository
 
-from src.schemas.producto import Producto
-from src.storage.storage import Storage
+    def listar_productos(self) -> list[ProductoResponse]:
+        """Obtiene todos los productos registrados."""
 
+        return self.repository.list()
 
-class InventarioService:
-    """
-    Servicio principal encargado de gestionar la lógica de negocio del inventario.
+    def obtener_producto(self, producto_id: int) -> ProductoResponse:
+        """Obtiene un producto por su id."""
 
-    Esta clase implementa las operaciones principales sobre los productos,
-    incluyendo creación, consulta, actualización y eliminación.
+        producto = self.repository.get_by_id(producto_id)
+        if producto is None:
+            raise ProductoNoEncontradoError(producto_id)
+        return producto
 
-    Attributes:
-        storage (Storage):
-            Componente responsable de la persistencia de los datos.
-    """
+    def buscar_producto_por_codigo(self, codigo: str) -> ProductoResponse:
+        """Obtiene un producto por su codigo unico."""
 
-    def __init__(self, storage: Storage) -> None:
-        """
-        Inicializa el servicio de inventario.
-
-        Args:
-            storage (Storage):
-                Implementación de almacenamiento utilizada para
-                cargar y guardar productos.
-
-        Returns:
-            None
-        """
-
-        self.storage = storage
-
-    def _validar_producto(self, producto: Producto) -> None:
-        """
-        Valida que los datos del producto sean correctos.
-
-        Args:
-            producto (Producto):
-                Producto a validar.
-
-        Raises:
-            DatosProductoInvalidosError:
-                Si algún dato del producto es inválido.
-
-        Returns:
-            None
-        """
-
-        if not producto.nombre.strip():
-            raise DatosProductoInvalidosError(
-                "El nombre no puede estar vacío"
-            )
-
-        if producto.cantidad < 0:
-            raise DatosProductoInvalidosError(
-                "La cantidad no puede ser negativa"
-            )
-
-        if producto.valor <= 0:
-            raise DatosProductoInvalidosError(
-                "El valor debe ser mayor que cero"
-            )
-
-    def _verificar_codigo_unico(
-        self,
-        codigo: str,
-        productos: List[Producto]
-    ) -> None:
-        """
-        Verifica que el código del producto no exista.
-
-        Args:
-            codigo (str):
-                Código del producto.
-
-            productos (List[Producto]):
-                Lista de productos registrados.
-
-        Raises:
-            ProductoYaExisteError:
-                Si el código ya existe.
-
-        Returns:
-            None
-        """
-
-        if any(p.codigo == codigo for p in productos):
-            raise ProductoYaExisteError(codigo)
-
-    def crear_producto(self, producto: Producto) -> None:
-        """
-        Registra un nuevo producto en el inventario.
-
-        Args:
-            producto (Producto):
-                Producto a registrar.
-
-        Raises:
-            ProductoYaExisteError:
-                Si ya existe un producto con el mismo código.
-
-            DatosProductoInvalidosError:
-                Si los datos son inválidos.
-
-        Returns:
-            None
-        """
-
-        self._validar_producto(producto)
-
-        productos = self.storage.load()
-
-        self._verificar_codigo_unico(
-            producto.codigo,
-            productos
-        )
-
-        productos.append(producto)
-
-        self.storage.save(productos)
-
-    def listar_productos(self) -> List[Producto]:
-        """
-        Obtiene todos los productos del inventario.
-
-        Returns:
-            List[Producto]:
-                Lista de productos registrados.
-        """
-
-        return self.storage.load()
-
-    def buscar_producto(self, codigo: str) -> Producto:
-        """
-        Busca un producto utilizando su código.
-
-        Args:
-            codigo (str):
-                Código único del producto.
-
-        Returns:
-            Producto:
-                Producto encontrado.
-
-        Raises:
-            ProductoNoEncontradoError:
-                Si el producto no existe.
-        """
-
-        productos = self.storage.load()
-
-        for producto in productos:
-
-            if producto.codigo == codigo:
-                return producto
-
-        raise ProductoNoEncontradoError(codigo)
-
-    def calcular_inventario_total(self) -> float:
-        """
-        Calcula el valor total del inventario.
-
-        Returns:
-            float:
-                Valor total del inventario.
-        """
-
-        productos = self.storage.load()
-
-        return sum(
-            p.cantidad * p.valor
-            for p in productos
-        )
-
-    def actualizar_producto(
-        self,
-        codigo: str,
-        nuevo_nombre: str,
-        nueva_cantidad: int,
-        nuevo_valor: float
-    ) -> None:
-        """
-        Actualiza un producto existente.
-
-        Args:
-            codigo (str):
-                Código del producto.
-
-            nuevo_nombre (str):
-                Nuevo nombre del producto.
-
-            nueva_cantidad (int):
-                Nueva cantidad disponible.
-
-            nuevo_valor (float):
-                Nuevo valor unitario.
-
-        Raises:
-            ProductoNoEncontradoError:
-                Si el producto no existe.
-
-            DatosProductoInvalidosError:
-                Si los nuevos datos son inválidos.
-
-        Returns:
-            None
-        """
-
-        productos = self.storage.load()
-
-        producto = self.buscar_producto(codigo)
-
-        if not nuevo_nombre.strip():
-            raise DatosProductoInvalidosError(
-                "El nombre no puede estar vacío"
-            )
-
-        if nueva_cantidad < 0:
-            raise DatosProductoInvalidosError(
-                "La cantidad no puede ser negativa"
-            )
-
-        if nuevo_valor <= 0:
-            raise DatosProductoInvalidosError(
-                "El valor debe ser mayor que cero"
-            )
-
-        producto.nombre = nuevo_nombre
-        producto.cantidad = nueva_cantidad
-        producto.valor = nuevo_valor
-
-        self.storage.save(productos)
-
-    def eliminar_producto(self, codigo: str) -> None:
-        """
-        Elimina un producto del inventario.
-
-        Args:
-            codigo (str):
-                Código del producto que se desea eliminar.
-
-        Raises:
-            ProductoNoEncontradoError:
-                Si el producto no existe.
-
-        Returns:
-            None
-        """
-
-        productos = self.storage.load()
-
-        filtrados = [
-            p for p in productos
-            if p.codigo != codigo
-        ]
-
-        if len(filtrados) == len(productos):
+        producto = self.repository.get_by_codigo(codigo)
+        if producto is None:
             raise ProductoNoEncontradoError(codigo)
+        return producto
 
-        self.storage.save(filtrados)
+    def crear_producto(self, producto: ProductoCreate) -> ProductoResponse:
+        """Crea un producto validando que su codigo sea unico."""
+
+        existente = self.repository.get_by_codigo(producto.codigo)
+        if existente is not None:
+            raise ProductoYaExisteError(producto.codigo)
+        return self.repository.create(producto)
+
+    def actualizar_producto(self, producto_id: int, data: ProductoUpdate) -> ProductoResponse:
+        """Actualiza un producto existente."""
+
+        actual = self.obtener_producto(producto_id)
+
+        if data.codigo and data.codigo != actual.codigo:
+            existente = self.repository.get_by_codigo(data.codigo)
+            if existente is not None and existente.id != producto_id:
+                raise ProductoYaExisteError(data.codigo)
+
+        actualizado = self.repository.update(producto_id, data)
+        if actualizado is None:
+            raise ProductoNoEncontradoError(producto_id)
+        return actualizado
+
+    def eliminar_producto(self, producto_id: int) -> None:
+        """Elimina un producto por id."""
+
+        eliminado = self.repository.delete(producto_id)
+        if not eliminado:
+            raise ProductoNoEncontradoError(producto_id)
+
+    def calcular_valor_total(self) -> float:
+        """Calcula el valor total del inventario."""
+
+        return sum(producto.cantidad * producto.valor for producto in self.listar_productos())
+
+
+# Alias temporal para compatibilidad con pruebas o imports antiguos.
+InventarioService = ProductoService

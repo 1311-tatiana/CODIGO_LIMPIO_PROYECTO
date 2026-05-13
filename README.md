@@ -1,153 +1,216 @@
-#  Ferretería — Sistema de Inventario y Ventas
+# Ferreteria Inventario API
 
-Sistema de gestión de inventario para una ferretería, desarrollado en Python con arquitectura limpia, interfaz de línea de comandos con **Typer** y **Rich**, y persistencia local en JSON.
+Backend API para gestionar el inventario de una ferreteria. Esta version esta enfocada en la **Entrega 4: Backend API con FastAPI**, usando arquitectura modular, schemas Pydantic, endpoints CRUD y una capa de persistencia preparada para Supabase.
 
+## Funcionalidades principales
 
-## Descripción del proyecto
+- API funcional con FastAPI.
+- Router organizado para productos.
+- CRUD completo de productos.
+- Schemas Pydantic separados para request y response.
+- Separacion por capas: `api`, `schemas`, `services`, `storage` y `core`.
+- Integracion con Supabase mediante variables de entorno.
+- Modo local con JSON para poder probar sin credenciales.
+- Documentacion automatica en `/docs` y `/redoc`.
 
-Este proyecto consiste en un sistema de gestión de inventario, inicialmente enfocado en una ferretería, el cual nos va a permitir administrar productos y registrar los datos básicos de los productos que se tienen en el establecimiento, ofreciendo funcionalidades para crear, consultar, actualizar y eliminar información relacionada con el inventario.
+## Estructura del proyecto
 
-## Propósito del proyecto
-El propósito principal de este proyecto es facilitar el control de inventarios de manera organizada y estructurada, permitiendo el registro, consulta y actualización de los productos disponibles.
+La estructura esta organizada para cumplir la entrega de backend con FastAPI: endpoints en `api`, contratos de datos en `schemas`, logica de negocio en `services` y acceso a datos en `storage`.
 
-
-
-**Alcance funcional:**
-- Registrar productos con código único, nombre, cantidad y valor.
-- Consultar el listado completo del inventario con totales por producto.
-- Buscar un producto específico por su código.
-- Ver el valor monetario total del inventario.
-- Actualizar nombre, cantidad y/o valor de un producto (el código no se puede modificar).
-- Eliminar productos del inventario.
-
-
-
-## 🗂 Estructura del proyecto
-
-```bash
+```text
 ferreteria-inventario/
 ├── .github/
 │   └── workflows/
-│       └── tests.yml         # CI: tests y lint automático en GitHub 
-        └── docs.yml          # CI: tests y lint automático en GitHub
-Actions
-├── data/
-│   └── database.json         # Base de datos local (JSON)
-|──docs/
-    └── referencia/
-        └── api.md            #archivo de documentacion  
-    ├─guia_usuario.md         #archivo de documentacion(guia)
-    ├─index.md                #archivo de documentacion(presentacion)
+│       ├── tests.yml                 # CI: pruebas y lint automatico en GitHub Actions
+│       └── docs.yml                  # CI: publicacion de documentacion con MkDocs
+│
+├── docs/
+│   ├── architecture.md               # Explicacion de la arquitectura por capas
+│   ├── getting-started.md            # Guia rapida de instalacion y ejecucion
+│   ├── index.md                      # Pagina principal de la documentacion
+│   ├── reference.md                  # Referencia de endpoints
+│   └── user-guide/
+│       ├── commands.md               # Comandos utiles del proyecto
+│       └── persistence.md            # Guia de persistencia local y Supabase
+│
 ├── src/
-│   └── ferreteria/
+│   ├── api/                          # Capa HTTP con FastAPI
+│   │   ├── __init__.py
+│   │   ├── main.py                   # Aplicacion principal, routers y /docs
+│   │   ├── dependencies.py           # Inyeccion de dependencias para servicios
+│   │   └── routers/
+│   │       ├── __init__.py
+│   │       └── productos.py          # Endpoints CRUD de productos
+│   │
+│   ├── app/                          # CLI opcional para pruebas locales
+│   │   ├── __init__.py
+│   │   ├── main.py                   # Interfaz de consola con Typer
+│   │   └── pages/
+│   │       ├── __init__.py
+│   │       └── productos.py          # Vistas de consola para productos
+│   │
+│   ├── core/                         # Configuracion y utilidades centrales
+│   │   ├── __init__.py
+│   │   ├── config.py                 # Variables de entorno y settings
+│   │   └── exceptions.py             # Excepciones personalizadas
+│   │
+│   ├── schemas/                      # Contratos de datos con Pydantic
+│   │   ├── __init__.py
+│   │   └── producto.py               # ProductoCreate, ProductoUpdate, ProductoResponse
+│   │
+│   ├── services/                     # Logica de negocio
+│   │   ├── __init__.py
+│   │   └── services.py               # Reglas CRUD y calculo del inventario
+│   │
+│   └── storage/                      # Persistencia de datos
 │       ├── __init__.py
-│       ├── models.py         # Dataclass Producto
-│       ├── services.py       # Lógica de negocio (CRUD + validaciones)
-│       ├── storage.py        # Lectura/escritura del archivo JSON
-│       └── exceptions.py     # Excepciones personalizadas
+│       ├── database.json             # Base local para pruebas sin Supabase
+│       ├── storage.py                # Repositorio local y repositorio Supabase
+│       └── supabase_client.py        # Cliente Supabase configurado con .env
+│
+├── supabase/
+│   └── schema.sql                    # Script SQL para crear la tabla productos
+│
 ├── tests/
 │   ├── __init__.py
-│   └── test_services.py      # 13 casos de prueba con Pytest
-├── main.py                   # Interfaz CLI (Typer + Rich)
-├── mkdocs.yml                # Archivo de configuración
-├── .gitignore
-├── pyproject.toml
-└── README.md
+│   ├── conftest.py                   # Configuracion compartida de pruebas
+│   ├── integration/
+│   │   ├── __init__.py
+│   │   └── test_routers.py           # Pruebas de endpoints FastAPI
+│   └── unit/
+│       ├── __init__.py
+│       └── test_services.py          # Pruebas de logica de negocio
+│
+├── .env.example                      # Plantilla de variables de entorno
+├── .gitignore                        # Archivos ignorados por Git
+├── mkdocs.yml                        # Configuracion de documentacion
+├── pyproject.toml                    # Dependencias y configuracion del proyecto
+└── README.md                         # Instrucciones de ejecucion y entrega
 ```
 
-## Guía de instalación
+## Requisitos
 
-**Requisitos:** Python 3.12+ y [uv](https://docs.astral.sh/uv/) instalado.
+- Python 3.12 o superior.
+- `uv` instalado.
+- Proyecto creado en Supabase si se quiere usar la base de datos real.
 
-# 1. Clonar el repositorio
+## Instalacion
+
 ```bash
 git clone https://github.com/1311-tatiana/CODIGO_LIMPIO_PROYECTO.git
 cd CODIGO_LIMPIO_PROYECTO
+uv sync --all-extras
 ```
-# 2. Crear entorno virtual con uv
+
+## Configuracion de variables de entorno
+
+Copia el archivo de ejemplo:
+
 ```bash
-uv venv
+cp .env.example .env
 ```
-# 3. Instalar dependencias
+
+Para probar localmente sin Supabase, deja:
+
+```env
+USE_SUPABASE=false
+```
+
+Para usar Supabase, completa tus credenciales reales:
+
+```env
+SUPABASE_URL=https://tu-proyecto.supabase.co
+SUPABASE_KEY=tu_api_key
+SUPABASE_TABLE_PRODUCTOS=productos
+USE_SUPABASE=true
+```
+
+> Importante: el archivo `.env` no debe subirse al repositorio.
+
+## Crear tabla en Supabase
+
+Antes de activar `USE_SUPABASE=true`, ejecuta el SQL de `supabase/schema.sql` en el SQL Editor de Supabase:
+
+```sql
+create table if not exists public.productos (
+    id bigint generated by default as identity primary key,
+    codigo text not null unique,
+    nombre text not null,
+    cantidad integer not null check (cantidad >= 0),
+    valor numeric(12, 2) not null check (valor > 0),
+    created_at timestamp with time zone default now()
+);
+```
+
+## Ejecutar la API
+
 ```bash
-uv pip install typer rich pytest ruff
+uv run uvicorn src.api.main:app --reload
 ```
 
-## Manual de la CLI
+Luego abre:
 
-### Crear un producto
+```text
+http://127.0.0.1:8000/docs
+http://127.0.0.1:8000/redoc
+```
+
+## Endpoints principales
+
+| Metodo | Ruta | Descripcion |
+| --- | --- | --- |
+| GET | `/` | Verifica que la API este funcionando |
+| GET | `/products/` | Lista productos |
+| POST | `/products/` | Crea un producto |
+| GET | `/products/{product_id}` | Consulta un producto por id |
+| GET | `/products/code/{codigo}` | Consulta un producto por codigo |
+| PUT | `/products/{product_id}` | Actualiza un producto |
+| PATCH | `/products/{product_id}` | Actualiza parcialmente un producto |
+| DELETE | `/products/{product_id}` | Elimina un producto |
+| GET | `/products/total-value` | Calcula el valor total del inventario |
+
+## Ejemplo de uso con curl
+
+Crear producto:
+
 ```bash
-uv run python main.py crear P001 "Martillo" 10 15000
-#                           ^    ^           ^   ^
-#                        codigo nombre   cantidad valor
+curl -X POST http://127.0.0.1:8000/products/ \
+  -H "Content-Type: application/json" \
+  -d '{"codigo":"P001","nombre":"Martillo","cantidad":10,"valor":15000}'
 ```
 
-### Listar todos los productos
+Listar productos:
+
 ```bash
-uv run python main.py listar
+curl http://127.0.0.1:8000/products/
 ```
 
-### Buscar un producto por código
+Actualizar producto:
+
 ```bash
-uv run python main.py buscar P001
+curl -X PATCH http://127.0.0.1:8000/products/1 \
+  -H "Content-Type: application/json" \
+  -d '{"cantidad":15}'
 ```
 
-### Ver valor total del inventario
+Eliminar producto:
+
 ```bash
-uv run python main.py total
+curl -X DELETE http://127.0.0.1:8000/products/1
 ```
 
-### Actualizar un producto
+## Ejecutar pruebas
 
-# Actualizar solo la cantidad
 ```bash
-uv run python main.py actualizar P001 --cantidad 25
+uv run pytest -v
 ```
-# Actualizar solo el valor
+
+## Revisar estilo de codigo
+
 ```bash
-uv run python main.py actualizar P001 --valor 18000
-```
-# Actualizar nombre y cantidad
-```bash
-uv run python main.py actualizar P001 --nombre "Martillo Grande" --cantidad 5
+uv run ruff check .
 ```
 
-### Eliminar un producto
-```bash
-uv run python main.py eliminar P001
-```
-# Se pedirá confirmación antes de eliminar
+## Nota sobre modo local y Supabase
 
-
-##  Instrucciones de Testing
-```bash
-uv run pytest
-```
-
-Los tests cubren los siguientes escenarios:
-
-
-| # | Tipo | Descripción |
-|---|------|-------------|
-| 1 | Normal | Crear producto válido |
-| 2 | Error | Crear producto con código duplicado |
-| 3 | Error | Crear producto con nombre vacío |
-| 4 | Extraordinario | Crear producto con cantidad negativa |
-| 5 | Error | Crear producto con valor cero |
-| 6 | Normal | Listar productos retorna lista completa |
-| 7 | Normal | Buscar producto por código existente |
-| 8 | Error | Buscar código inexistente |
-| 9 | Normal | Calcular valor total del inventario |
-| 10 | Normal | Actualizar cantidad y valor |
-| 11 | Error | Actualizar producto inexistente |
-| 12 | Normal | Eliminar producto existente |
-| 13 | Error | Eliminar código inexistente |
-
-## 🛠 Tecnologías utilizadas
-
-- **Python 3.12+**
-- **Typer** — CLI declarativa
-- **Rich** — tablas y colores en terminal
-- **Pytest** — pruebas unitarias
-- **Ruff** — linter y formateador
-- **uv** — gestión de dependencias y entorno
+El proyecto puede arrancar sin Supabase usando `USE_SUPABASE=false`, lo cual facilita las pruebas locales. Para cumplir la entrega con base de datos real, se debe configurar `.env` con `USE_SUPABASE=true`, `SUPABASE_URL` y `SUPABASE_KEY`.

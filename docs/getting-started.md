@@ -1,66 +1,41 @@
-# Requisitos
-Antes de ejecutar el proyecto, asegúrate de tener instalado:
+# Primeros pasos
 
-1-Python 3.10 o superior
-```bash
-python --version 
-```
-2-uv (gestor de dependencias)
-```bash
-uv --version
-```
-luego Puedes obtener el proyecto de dos formas:
+## Requisitos
 
-Opción 1: Clonar con git
-```sh
+- Python 3.12 o superior.
+- uv instalado.
+
+## Instalacion
+
+```bash
 git clone https://github.com/1311-tatiana/CODIGO_LIMPIO_PROYECTO.git
 cd CODIGO_LIMPIO_PROYECTO
+uv sync --all-extras
 ```
 
-Opción 2: Descargar como ZIP
+## Variables de entorno
 
-Ir al repositorio en GitHub
-Clic en Code → Download ZIP
-Extraer el archivo
-Abrir la carpeta en Visual Studio Code
-
-# Instalación de dependencias
-
-Dentro del proyecto ejecuta:
-uv sync
-Este comando instalará todas las dependencias necesarias.
-
-# Ejecutar el proyecto
-
-Para ver los comandos disponibles en la CLI:
-uv run main.py --help
-
-Ejemplo de uso:
 ```bash
-uv run main.py crear
-uv run main.py listar
+cp .env.example .env
 ```
 
-Esto permitirá interactuar con el sistema de gestión de productos.
+Para desarrollo local puedes dejar `USE_SUPABASE=false`. Para conectarte a Supabase, completa `SUPABASE_URL`, `SUPABASE_KEY` y cambia `USE_SUPABASE=true`.
 
-# Ejecutar pruebas
+## Ejecutar API
 
-Para correr los tests del proyecto:
 ```bash
-uv run pytest (Verificar calidad del código)
+uv run uvicorn src.api.main:app --reload
 ```
-Para medir la complejidad ciclomática:
-```bash
-uv run radon cc src -a
+
+Abre la documentacion automatica en:
+
+```text
+http://127.0.0.1:8000/docs
+http://127.0.0.1:8000/redoc
 ```
-El resultado esperado es:
 
-Average complexity: A
+## Ejecutar pruebas
 
-# Estructura básica
 ```bash
-src/        Código fuente
-docs/       Documentación
-tests/      Pruebas
-data/       Persistencia en JSON
+uv run pytest -v
 ```
