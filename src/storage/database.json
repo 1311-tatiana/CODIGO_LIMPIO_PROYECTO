@@ -1,16 +1,9 @@
 [
   {
-    "id": 1,
-    "codigo": "P001",
+    "codigo": "P030",
     "nombre": "Martillo",
     "cantidad": 10,
-    "valor": 15000.0
-  },
-  {
-    "codigo": "MART001",
-    "nombre": "Martillo",
-    "cantidad": 10,
-    "valor": 25000.0,
-    "id": 2
+    "valor": 15000.0,
+    "id": 4
   }
 ]
