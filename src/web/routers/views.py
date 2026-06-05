@@ -99,7 +99,9 @@ def crear_producto(
             cantidad=cantidad,
             valor=valor,
         )
+
         service.crear_producto(producto)
+
         return redirigir_inicio(mensaje="Producto registrado correctamente")
 
     except ProductoYaExisteError:
@@ -176,25 +178,35 @@ def sumar_stock_producto(
     service: ProductoService = Depends(get_producto_service),
 ):
     try:
-        if cantidad_agregar <= 0:
-            return redirigir_inicio(error="La cantidad a agregar debe ser mayor que cero")
+        if cantidad_agregar == 0:
+            return redirigir_inicio(error="La cantidad debe ser diferente de cero")
 
         producto = service.obtener_producto(producto_id)
 
         nueva_cantidad = producto.cantidad + cantidad_agregar
+
+        if nueva_cantidad < 0:
+            return redirigir_inicio(
+                error="No puedes retirar más unidades de las disponibles"
+            )
 
         service.actualizar_producto(
             producto_id,
             ProductoUpdate(cantidad=nueva_cantidad),
         )
 
-        return redirigir_inicio(mensaje="Cantidad agregada correctamente")
+        if cantidad_agregar > 0:
+            mensaje = "Cantidad agregada correctamente"
+        else:
+            mensaje = "Cantidad descontada correctamente"
+
+        return redirigir_inicio(mensaje=mensaje)
 
     except ProductoNoEncontradoError:
         return redirigir_inicio(error="Producto no encontrado")
 
     except Exception as exc:
-        return redirigir_inicio(error=f"Error inesperado al agregar stock: {exc}")
+        return redirigir_inicio(error=f"Error inesperado al ajustar stock: {exc}")
 
 
 @router.post("/productos/{producto_id}/eliminar")
@@ -204,6 +216,7 @@ def eliminar_producto(
 ):
     try:
         service.eliminar_producto(producto_id)
+
         return redirigir_inicio(mensaje="Producto eliminado correctamente")
 
     except ProductoNoEncontradoError:
@@ -222,7 +235,7 @@ def exportar_productos_csv(
 
         output = io.StringIO()
 
-        # Usamos punto y coma para que Excel lo abra en columnas correctamente
+        # Punto y coma para que Excel en español lo abra en columnas.
         writer = csv.writer(output, delimiter=";")
 
         writer.writerow(
