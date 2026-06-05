@@ -65,7 +65,7 @@
         <h3>Resumen</h3>
 
         <div class="stat">
-            <span>Productos registrados</span>
+            <span>Productos mostrados</span>
             <strong>{{ productos|length }}</strong>
         </div>
 
@@ -145,8 +145,9 @@
 
                         <td>
                             <div class="actions">
+
                                 <form
-                                    action="/productos/{{ producto.id }}/duplicar"
+                                    action="/productos/{{ producto.id }}/sumar-stock"
                                     method="post"
                                     class="stock-form"
                                 >
@@ -156,11 +157,12 @@
                                         min="1"
                                         placeholder="+ cant."
                                         required
-                                >
+                                    >
                                     <button type="submit" class="stock-btn">
                                         Agregar
                                     </button>
                                 </form>
+
                                 <a href="/productos/{{ producto.id }}/editar" class="edit-btn">
                                     Editar
                                 </a>
@@ -174,6 +176,7 @@
                                         Eliminar
                                     </button>
                                 </form>
+
                             </div>
                         </td>
                     </tr>

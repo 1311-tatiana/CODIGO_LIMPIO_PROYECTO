@@ -1,5 +1,6 @@
 import csv
 import io
+from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, Form, Query, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
@@ -14,6 +15,18 @@ from src.services.services import ProductoService
 router = APIRouter(tags=["Interfaz Web"])
 
 templates = Jinja2Templates(directory="src/web/templates")
+
+
+def redirigir_inicio(mensaje: str = "", error: str = "") -> RedirectResponse:
+    """Redirige al inicio con mensaje de éxito o error."""
+    if mensaje:
+        url = f"/?mensaje={quote(mensaje)}"
+    elif error:
+        url = f"/?error={quote(error)}"
+    else:
+        url = "/"
+
+    return RedirectResponse(url, status_code=status.HTTP_303_SEE_OTHER)
 
 
 def obtener_estado_stock(cantidad: int) -> str:
@@ -32,7 +45,13 @@ def inicio(
     error: str = Query(default=""),
     service: ProductoService = Depends(get_producto_service),
 ):
-    productos = service.listar_productos()
+    try:
+        productos = service.listar_productos()
+        total = service.calcular_valor_total()
+    except Exception as exc:
+        productos = []
+        total = 0
+        error = f"Error al cargar productos: {exc}"
 
     if q:
         productos_filtrados = [
@@ -44,7 +63,6 @@ def inicio(
     else:
         productos_filtrados = productos
 
-    total = service.calcular_valor_total()
     unidades_totales = sum(producto.cantidad for producto in productos)
     productos_stock_bajo = sum(1 for producto in productos if 0 < producto.cantidad <= 5)
     productos_agotados = sum(1 for producto in productos if producto.cantidad == 0)
@@ -74,24 +92,21 @@ def crear_producto(
     valor: float = Form(...),
     service: ProductoService = Depends(get_producto_service),
 ):
-    producto = ProductoCreate(
-        codigo=codigo,
-        nombre=nombre,
-        cantidad=cantidad,
-        valor=valor,
-    )
-
     try:
+        producto = ProductoCreate(
+            codigo=codigo,
+            nombre=nombre,
+            cantidad=cantidad,
+            valor=valor,
+        )
         service.crear_producto(producto)
-        return RedirectResponse(
-            "/?mensaje=Producto registrado correctamente",
-            status_code=status.HTTP_303_SEE_OTHER,
-        )
+        return redirigir_inicio(mensaje="Producto registrado correctamente")
+
     except ProductoYaExisteError:
-        return RedirectResponse(
-            "/?error=Ya existe un producto con ese código",
-            status_code=status.HTTP_303_SEE_OTHER,
-        )
+        return redirigir_inicio(error="Ya existe un producto con ese código")
+
+    except Exception as exc:
+        return redirigir_inicio(error=f"Error inesperado al crear producto: {exc}")
 
 
 @router.get("/productos/{producto_id}/editar", response_class=HTMLResponse)
@@ -103,11 +118,12 @@ def formulario_editar_producto(
 ):
     try:
         producto = service.obtener_producto(producto_id)
+
     except ProductoNoEncontradoError:
-        return RedirectResponse(
-            "/?error=Producto no encontrado",
-            status_code=status.HTTP_303_SEE_OTHER,
-        )
+        return redirigir_inicio(error="Producto no encontrado")
+
+    except Exception as exc:
+        return redirigir_inicio(error=f"Error inesperado al cargar producto: {exc}")
 
     return templates.TemplateResponse(
         request=request,
@@ -128,79 +144,29 @@ def editar_producto(
     valor: float = Form(...),
     service: ProductoService = Depends(get_producto_service),
 ):
-    datos_actualizados = ProductoUpdate(
-        codigo=codigo,
-        nombre=nombre,
-        cantidad=cantidad,
-        valor=valor,
-    )
-
     try:
-        service.actualizar_producto(producto_id, datos_actualizados)
-        return RedirectResponse(
-            "/?mensaje=Producto actualizado correctamente",
-            status_code=status.HTTP_303_SEE_OTHER,
+        datos_actualizados = ProductoUpdate(
+            codigo=codigo,
+            nombre=nombre,
+            cantidad=cantidad,
+            valor=valor,
         )
+
+        service.actualizar_producto(producto_id, datos_actualizados)
+
+        return redirigir_inicio(mensaje="Producto actualizado correctamente")
+
     except ProductoYaExisteError:
         return RedirectResponse(
-            f"/productos/{producto_id}/editar?error=Ya existe un producto con ese código",
+            f"/productos/{producto_id}/editar?error={quote('Ya existe un producto con ese código')}",
             status_code=status.HTTP_303_SEE_OTHER,
         )
+
     except ProductoNoEncontradoError:
-        return RedirectResponse(
-            "/?error=Producto no encontrado",
-            status_code=status.HTTP_303_SEE_OTHER,
-        )
+        return redirigir_inicio(error="Producto no encontrado")
 
-
-@router.post("/productos/{producto_id}/eliminar")
-def eliminar_producto(
-    producto_id: int,
-    service: ProductoService = Depends(get_producto_service),
-):
-    try:
-        service.eliminar_producto(producto_id)
-        return RedirectResponse(
-            "/?mensaje=Producto eliminado correctamente",
-            status_code=status.HTTP_303_SEE_OTHER,
-        )
-    except ProductoNoEncontradoError:
-        return RedirectResponse(
-            "/?error=Producto no encontrado",
-            status_code=status.HTTP_303_SEE_OTHER,
-        )
-
-
-@router.get("/productos/exportar")
-def exportar_productos_csv(
-    service: ProductoService = Depends(get_producto_service),
-):
-    productos = service.listar_productos()
-
-    output = io.StringIO()
-    writer = csv.writer(output)
-
-    writer.writerow(["ID", "Código", "Nombre", "Cantidad", "Valor unitario", "Valor total"])
-
-    for producto in productos:
-        writer.writerow(
-            [
-                producto.id,
-                producto.codigo,
-                producto.nombre,
-                producto.cantidad,
-                producto.valor,
-                producto.cantidad * producto.valor,
-            ]
-        )
-
-    return Response(
-        content=output.getvalue(),
-        media_type="text/csv",
-        headers={
-            "Content-Disposition": "attachment; filename=inventario_productos.csv"
-        },
-    )
+    except Exception as exc:
+        return redirigir_inicio(error=f"Error inesperado al actualizar producto: {exc}")
 
 
 @router.post("/productos/{producto_id}/sumar-stock")
@@ -210,6 +176,9 @@ def sumar_stock_producto(
     service: ProductoService = Depends(get_producto_service),
 ):
     try:
+        if cantidad_agregar <= 0:
+            return redirigir_inicio(error="La cantidad a agregar debe ser mayor que cero")
+
         producto = service.obtener_producto(producto_id)
 
         nueva_cantidad = producto.cantidad + cantidad_agregar
@@ -219,13 +188,70 @@ def sumar_stock_producto(
             ProductoUpdate(cantidad=nueva_cantidad),
         )
 
-        return RedirectResponse(
-            "/?mensaje=Cantidad agregada correctamente",
-            status_code=status.HTTP_303_SEE_OTHER,
-        )
+        return redirigir_inicio(mensaje="Cantidad agregada correctamente")
 
     except ProductoNoEncontradoError:
-        return RedirectResponse(
-            "/?error=Producto no encontrado",
-            status_code=status.HTTP_303_SEE_OTHER,
+        return redirigir_inicio(error="Producto no encontrado")
+
+    except Exception as exc:
+        return redirigir_inicio(error=f"Error inesperado al agregar stock: {exc}")
+
+
+@router.post("/productos/{producto_id}/eliminar")
+def eliminar_producto(
+    producto_id: int,
+    service: ProductoService = Depends(get_producto_service),
+):
+    try:
+        service.eliminar_producto(producto_id)
+        return redirigir_inicio(mensaje="Producto eliminado correctamente")
+
+    except ProductoNoEncontradoError:
+        return redirigir_inicio(error="Producto no encontrado")
+
+    except Exception as exc:
+        return redirigir_inicio(error=f"Error inesperado al eliminar producto: {exc}")
+
+
+@router.get("/productos/exportar")
+def exportar_productos_csv(
+    service: ProductoService = Depends(get_producto_service),
+):
+    try:
+        productos = service.listar_productos()
+
+        output = io.StringIO()
+
+        # Usamos punto y coma para que Excel lo abra en columnas correctamente
+        writer = csv.writer(output, delimiter=";")
+
+        writer.writerow(
+            ["ID", "Código", "Nombre", "Cantidad", "Valor unitario", "Valor total"]
+        )
+
+        for producto in productos:
+            writer.writerow(
+                [
+                    producto.id,
+                    producto.codigo,
+                    producto.nombre,
+                    producto.cantidad,
+                    producto.valor,
+                    producto.cantidad * producto.valor,
+                ]
+            )
+
+        return Response(
+            content=output.getvalue().encode("utf-8-sig"),
+            media_type="text/csv; charset=utf-8",
+            headers={
+                "Content-Disposition": "attachment; filename=inventario_productos.csv"
+            },
+        )
+
+    except Exception as exc:
+        return Response(
+            content=f"Error al exportar productos: {exc}",
+            media_type="text/plain",
+            status_code=500,
         )
