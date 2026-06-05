@@ -64,7 +64,9 @@ def inicio(
         productos_filtrados = productos
 
     unidades_totales = sum(producto.cantidad for producto in productos)
-    productos_stock_bajo = sum(1 for producto in productos if 0 < producto.cantidad <= 5)
+    productos_stock_bajo = sum(
+        1 for producto in productos if 0 < producto.cantidad <= 5
+    )
     productos_agotados = sum(1 for producto in productos if producto.cantidad == 0)
 
     return templates.TemplateResponse(
@@ -159,8 +161,11 @@ def editar_producto(
         return redirigir_inicio(mensaje="Producto actualizado correctamente")
 
     except ProductoYaExisteError:
+        mensaje_error = quote("Ya existe un producto con ese código")
+        url = f"/productos/{producto_id}/editar?error={mensaje_error}"
+
         return RedirectResponse(
-            f"/productos/{producto_id}/editar?error={quote('Ya existe un producto con ese código')}",
+            url,
             status_code=status.HTTP_303_SEE_OTHER,
         )
 

@@ -15,13 +15,26 @@ def create_test_client(tmp_path):
     return TestClient(app)
 
 
-def test_root(tmp_path):
+def test_health(tmp_path):
+    client = create_test_client(tmp_path)
+
+    response = client.get("/health")
+
+    assert response.status_code == 200
+    assert response.json()["message"] == "API funcionando correctamente"
+
+    app.dependency_overrides.clear()
+
+
+def test_home_page(tmp_path):
     client = create_test_client(tmp_path)
 
     response = client.get("/")
 
     assert response.status_code == 200
-    assert response.json()["message"] == "API funcionando correctamente"
+    assert "text/html" in response.headers["content-type"]
+    assert "Gestión de productos" in response.text
+
     app.dependency_overrides.clear()
 
 
@@ -30,7 +43,12 @@ def test_crud_products(tmp_path):
 
     create_response = client.post(
         "/products/",
-        json={"codigo": "P001", "nombre": "Martillo", "cantidad": 10, "valor": 15000.0},
+        json={
+            "codigo": "P001",
+            "nombre": "Martillo",
+            "cantidad": 10,
+            "valor": 15000.0,
+        },
     )
     assert create_response.status_code == 201
     product_id = create_response.json()["id"]
@@ -56,4 +74,5 @@ def test_crud_products(tmp_path):
 
     missing_response = client.get(f"/products/{product_id}")
     assert missing_response.status_code == 404
+
     app.dependency_overrides.clear()
